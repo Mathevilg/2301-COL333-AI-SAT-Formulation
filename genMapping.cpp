@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     for (int i=0; i<vertices ; i++) {
         iss1 >> s;
         if (s[0]!='-') {
-            std::cout << std::to_string(std::stoi(s)-1000) << " ";
+            std::cout << std::to_string(std::stoi(s)-vertices) << " ";
         }
     }
     std::cout << "\n";
