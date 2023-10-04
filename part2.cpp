@@ -49,15 +49,15 @@ int main(int argc, char *argv[]) {
     int k = 1;
     int constraint_count;
     while (k<=vertices) {
-        constraint_count = (vertices*(vertices-1))/2 - count + 3*vertices*k + vertices + k + 1;
+        constraint_count = (vertices*(vertices-1))/2 - count + 4*vertices*k + vertices + k + 2;
         std::ofstream outputFile("temp.txt", std::ios::trunc);
         outputFile << "p cnf " + std::to_string(vertices+(vertices+1)*(k+1)) + " " + std::to_string(constraint_count) << std::endl;
         for (int i = 0; i < vertices; i++) {
             for (int j=i+1; j < vertices; j++) {
                 if (adjacencyMatrix[i][j]) {
                     // Create a line to write and write the line to the file
-                    std::string line1 = "-" + std::to_string(i+1) + " -" + std::to_string(j+1);
-                    outputFile << line1 << std::endl;
+                    std::string line1 = "-" + std::to_string(i+1) + " -" + std::to_string(j+1) + " 0\n";
+                    outputFile << line1;
                 }            
             }
             
@@ -66,29 +66,33 @@ int main(int argc, char *argv[]) {
         std::string line2;
         std::string line3;
         std::string line4;
+        std::string line5;
         int a;
         int b;
         for (int i=0; i<=vertices; i++) {
             for (int j=0; j<=k; j++){
                 if (i==0) {
-                    line2 = "-" + std::to_string(j+1+vertices);
-                    outputFile << line2 << std::endl;
+                    line2 = "-" + std::to_string(j+1+vertices) + " 0\n";
+                    outputFile << line2;
                 }
                 else if (j==0) {
-                    line2 = std::to_string(i*(k+1)+1+vertices);
-                    outputFile << line2 << std::endl;
+                    line2 = std::to_string(i*(k+1)+1+vertices) + " 0\n";
+                    outputFile << line2;
                 }
                 else {
                     a = i*(k+1) + (j+1) + vertices;
                     b = (i-1)*(k+1) + (j+1) + vertices;
-                    line2 = std::to_string(a);
-                    line3 = std::to_string(b) + " " + std::to_string(b-1);
-                    line4 = std::to_string(b) + " " + std::to_string(i);
-                    outputFile << line2 << std::endl << line3 << std::endl << line4 << std::endl;
+                    line2 = std::to_string(a) + " -" + std::to_string(b) + " 0\n";
+                    line3 = "-"+std::to_string(b-1) + " -" + std::to_string(i) + " " + std::to_string(a) + " 0\n";
+                    line4 = "-"+std::to_string(a) + " " + std::to_string(b) + " " + std::to_string(b-1) + " 0\n";
+                    line5 = "-"+std::to_string(a) + " " + std::to_string(b) + " -" + std::to_string(b-1) + " " + std::to_string(i)+" 0\n";
+                    outputFile << line2 << line3 << line4 << line5;
                 }
             }
         }
+        outputFile << std::to_string(vertices+(vertices+1)*(k+1))+" 0\n";
         k++;
+        
         // Check if outputFile is satisfiable 
         // if not satisfiable then break
         outputFile.close();
