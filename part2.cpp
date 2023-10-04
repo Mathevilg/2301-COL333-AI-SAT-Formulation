@@ -3,9 +3,10 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
+    if (argc != 3) {
         std::cerr << "Usage: " << argv[0] << " <input_file>" << std::endl;
         return 1;
     }
@@ -15,6 +16,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "Error: Could not open input file " << argv[1] << std::endl;
         return 1;
     }
+
 
     // Process input file (test.graphs) and generate the required output
 
@@ -45,9 +47,10 @@ int main(int argc, char *argv[]) {
     // std::cout << "Hello\n";
 
 
-    // iterate over all values of k from 1 to n
+    // iterate over all values of k from 1 to vertices
     int k = 1;
     int constraint_count;
+    std::string command = "minisat temp.txt result.txt";
     while (k<=vertices) {
         constraint_count = (vertices*(vertices-1))/2 - count + 4*vertices*k + vertices + k + 2;
         std::ofstream outputFile("temp.txt", std::ios::trunc);
@@ -71,12 +74,12 @@ int main(int argc, char *argv[]) {
         int b;
         for (int i=0; i<=vertices; i++) {
             for (int j=0; j<=k; j++){
-                if (i==0) {
-                    line2 = "-" + std::to_string(j+1+vertices) + " 0\n";
+                if (j==0) {
+                    line2 = std::to_string(i*(k+1)+1+vertices) + " 0\n";
                     outputFile << line2;
                 }
-                else if (j==0) {
-                    line2 = std::to_string(i*(k+1)+1+vertices) + " 0\n";
+                else if (i==0) {
+                    line2 = "-" + std::to_string(j+1+vertices) + " 0\n";
                     outputFile << line2;
                 }
                 else {
@@ -91,14 +94,39 @@ int main(int argc, char *argv[]) {
             }
         }
         outputFile << std::to_string(vertices+(vertices+1)*(k+1))+" 0\n";
+        std::cout << "k:" << std::to_string(k) << "\n";
         k++;
         
+        outputFile.close();
+
         // Check if outputFile is satisfiable 
         // if not satisfiable then break
-        outputFile.close();
+        int returnCode = system(command.c_str());
+        std::ifstream result_file("result.txt");
+        std::string result_line;
+        std::getline(result_file, result_line);
+        std::istringstream iss_result(result_line);
+        std::string sat;
+        iss_result >> sat;
+        if (sat == "UNSAT") break;
+        else {
+            std::string result_line2;
+            std::getline(result_file, result_line2);
+            std::istringstream iss_result2(result_line2);
+            std::string s;
+            
+            std::ofstream outputFile2(argv[2], std::ios::trunc);
+            outputFile2 << "#1\n";
+            for (int i=0; i<vertices ; i++) {
+                iss_result2 >> s;
+                if (s[0]!='-') {
+                    outputFile2 << s << " ";
+                }
+            }
+            std::cout << "\n";
+            outputFile2.close();
+        }
+
     }
-    
-
-
     return 0;
 }
