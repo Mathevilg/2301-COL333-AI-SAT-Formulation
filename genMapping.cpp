@@ -34,12 +34,11 @@ int main(int argc, char *argv[]) {
     std::getline(input_file2, line);
     std::istringstream iss1(line);
     std::string s;
-    char minus = '-';
 
     std::cout << "#1\n";
     for (int i=0; i<vertices ; i++) {
         iss1 >> s;
-        if (s[0]!=minus) {
+        if (s[0]!='-') {
             std::cout << s << " ";
         }
     }
@@ -48,7 +47,7 @@ int main(int argc, char *argv[]) {
     std::cout << "#2\n";
     for (int i=0; i<vertices ; i++) {
         iss1 >> s;
-        if (s[0]!=minus) {
+        if (s[0]!='-') {
             std::cout << s << " ";
         }
     }
