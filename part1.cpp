@@ -41,8 +41,9 @@ int main(int argc, char *argv[]) {
     // number of clauses - n + 2*(nC2 - edges) + (k1+1)*n*4 + 2 + (k1+n+1) + (k2+1)*n*4 + 2 + (k2+n+1)
 
     int no_of_variables = vertices*2 + (k1+2)*(vertices+1) + (k2+2)*(vertices+1);
-    int no_of_constraints = vertices + 2*((vertices*(vertices-1))/2 - edges) + (k1+1)*vertices*4 + 2 + (k1+vertices+2) + (k2+1)*vertices*4 + 2 + (k2+vertices+2);
-    
+    int no_of_constraints = vertices + 2*((vertices*(vertices-1))/2 - edges) + ((k1+1)*vertices*4 + 2 + (k1+vertices+2)) + ((k2+1)*vertices*4 + 2 + (k2+vertices+2));
+    // std::cout<<no_of_constraints<<std::endl;
+
     std::ofstream outputFile("test.satinput");
     outputFile << "p cnf " + std::to_string(no_of_variables) + " " + std::to_string(no_of_constraints) << std::endl;
 
@@ -53,11 +54,13 @@ int main(int argc, char *argv[]) {
 
     // adding clauses which ensure that the people who don't talk to one another are not in the same agency
     for (int i = 0; i < vertices; i++){
-        for (int j = 0; j < vertices; j++){
-            if (adjacencyMatrix[i][j] == 0){
-                outputFile << "-" + std::to_string(i+1) + " -" + std::to_string(j+1) + " 0\n";
-                outputFile << "-" + std::to_string(i+vertices+1) + " -" + std::to_string(j+vertices+1) + " 0\n";
-            }
+        for (int j = i+1; j < vertices; j++){
+            // if (i != j){
+                if (adjacencyMatrix[i][j] == 0){
+                    outputFile << "-" + std::to_string(i+1) + " -" + std::to_string(j+1) + " 0\n";
+                    outputFile << "-" + std::to_string(i+vertices+1) + " -" + std::to_string(j+vertices+1) + " 0\n";
+                }
+            // }
         }
     }
 
@@ -77,14 +80,17 @@ int main(int argc, char *argv[]) {
             else if (n == 0){
                 outputFile << "-" + std::to_string(2*vertices + k*(vertices+1) + n + 1) + " 0\n";
             }
+            // else if (k > n){
+            //     outputFile << "-" + std::to_string(2*vertices + k*(vertices+1) + n + 1) + " 0\n";
+            // }
             else{
                 s_k_n = 2*vertices + k*(vertices+1) + n + 1;
                 s_k_n_1 = 2*vertices + k*(vertices+1) + n-1 + 1;
                 s_k_1_n_1 = 2*vertices + (k-1)*(vertices+1) + n-1 + 1;
                 line1 = "-" + std::to_string(s_k_n_1) + " " + std::to_string(s_k_n) + " 0\n";
-                line2 = "-" + std::to_string(vertices) + " -" + std::to_string(s_k_1_n_1) + " " + std::to_string(s_k_n) + " 0\n";
-                line3 = "-" + std::to_string(s_k_n) + " -" + std::to_string(s_k_n_1) + " " + std::to_string(vertices) + " 0\n";
-                line4 = "-" + std::to_string(s_k_n) + " -" + std::to_string(s_k_n_1) + " " + std::to_string(s_k_1_n_1) + " 0\n";
+                line2 = "-" + std::to_string(n) + " -" + std::to_string(s_k_1_n_1) + " " + std::to_string(s_k_n) + " 0\n";
+                line3 = "-" + std::to_string(s_k_n) + " " + std::to_string(s_k_n_1) + " " + std::to_string(n) + " 0\n";
+                line4 = "-" + std::to_string(s_k_n) + " " + std::to_string(s_k_n_1) + " " + std::to_string(s_k_1_n_1) +  " 0\n";
                 outputFile << line1 << line2 << line3 << line4;
             }
         }
@@ -98,25 +104,28 @@ int main(int argc, char *argv[]) {
             else if (n == 0){
                 outputFile << "-" + std::to_string(2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1) + " 0\n";
             }
+            // else if (k > n){
+            //     outputFile << "-" + std::to_string(2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1) + " 0\n";
+            // }
             else{
                 s_k_n = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1;
                 s_k_n_1 = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n-1 + 1;
                 s_k_1_n_1 = 2*vertices + (k1+2)*(vertices+1) + (k-1)*(vertices+1) + n-1 + 1;
                 line1 = "-" + std::to_string(s_k_n_1) + " " + std::to_string(s_k_n) + " 0\n";
-                line2 = "-" + std::to_string(2*vertices) + " -" + std::to_string(s_k_1_n_1) + " " + std::to_string(s_k_n) + " 0\n";
-                line3 = "-" + std::to_string(s_k_n) + " -" + std::to_string(s_k_n_1) + " " + std::to_string(2*vertices) + " 0\n";
-                line4 = "-" + std::to_string(s_k_n) + " -" + std::to_string(s_k_n_1) + " " + std::to_string(s_k_1_n_1) + " 0\n";
+                line2 = "-" + std::to_string(vertices + n) + " -" + std::to_string(s_k_1_n_1) + " " + std::to_string(s_k_n) + " 0\n";
+                line3 = "-" + std::to_string(s_k_n) + " " + std::to_string(s_k_n_1) + " " + std::to_string(vertices + n) + " 0\n";
+                line4 = "-" + std::to_string(s_k_n) + " " + std::to_string(s_k_n_1) + " " + std::to_string(s_k_1_n_1) + " 0\n";
                 outputFile << line1 << line2 << line3 << line4;
             }
         }
     }
     outputFile << std::to_string(2*vertices + k1*(vertices+1) + vertices + 1) + " 0\n";
     outputFile << std::to_string(2*vertices + (k1+2)*(vertices+1) + k2*(vertices+1) + vertices + 1) + " 0\n";
-    outputFile << "-" + std::to_string(2*vertices + (k1+1)*(vertices+1) + vertices + 1) + " 0/n";
+    outputFile << "-" + std::to_string(2*vertices + (k1+1)*(vertices+1) + vertices + 1) + " 0\n";
     outputFile << "-" + std::to_string(2*vertices + (k1+2)*(vertices+1) + (k2+1)*(vertices+1) + vertices + 1) + " 0\n";
 
     outputFile.close();
 
-    
+
     return 0;
 }
