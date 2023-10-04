@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
                     line2 = std::to_string(a) + " -" + std::to_string(b) + " 0\n";
                     line3 = "-"+std::to_string(b-1) + " -" + std::to_string(i) + " " + std::to_string(a) + " 0\n";
                     line4 = "-"+std::to_string(a) + " " + std::to_string(b) + " " + std::to_string(b-1) + " 0\n";
-                    line5 = "-"+std::to_string(a) + " " + std::to_string(b) + " -" + std::to_string(b-1) + " " + std::to_string(i)+" 0\n";
+                    line5 = "-"+std::to_string(a) + " " + std::to_string(b) + " " + std::to_string(i)+" 0\n";
                     outputFile << line2 << line3 << line4 << line5;
                 }
             }
