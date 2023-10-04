@@ -1,6 +1,8 @@
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -15,14 +17,84 @@ int main(int argc, char *argv[]) {
     }
 
     // Process input file (test.graphs) and generate the required output
-    std::string line;
-    while (std::getline(input_file, line)) {
-        // Process the line as needed
-        // ...
 
-        // Print the processed line to stdout
-        std::cout << line << std::endl;
+    // number of vertices and edges of graph fetched from the first line of input graph file
+    int vertices, edges;
+    std::string first_line;
+    std::getline(input_file, first_line);
+    std::istringstream iss(first_line);
+    iss >> vertices >> edges;
+    std::cout << "vertices: " << vertices << std::endl;
+    std::cout << "edges: " << edges << std::endl;
+
+
+    // Construct an adjacency matrix by reading the graph
+    std::vector<std::vector<bool> > adjacencyMatrix (vertices, std::vector<bool>(vertices, true));
+    std::string line;
+    int count = 0;
+    while (std::getline(input_file, line)) {
+            std::istringstream iss(line);
+            int row, col;
+            iss >> row >> col;
+            adjacencyMatrix[row-1][col-1] = 0;
+            adjacencyMatrix[col-1][row-1] = 0;
+            count++;
+            std::cout << line << std::endl;
     }
+     
+    // std::cout << "Hello\n";
+
+
+    // iterate over all values of k from 1 to n
+    int k = 1;
+    int constraint_count;
+    while (k<=vertices) {
+        constraint_count = (vertices*(vertices-1))/2 - count + 3*vertices*k + vertices + k + 1;
+        std::ofstream outputFile("temp.txt", std::ios::trunc);
+        outputFile << "p cnf " + std::to_string(vertices+(vertices+1)*(k+1)) + " " + std::to_string(constraint_count) << std::endl;
+        for (int i = 0; i < vertices; i++) {
+            for (int j=i+1; j < vertices; j++) {
+                if (adjacencyMatrix[i][j]) {
+                    // Create a line to write and write the line to the file
+                    std::string line1 = "-" + std::to_string(i+1) + " -" + std::to_string(j+1);
+                    outputFile << line1 << std::endl;
+                }            
+            }
+            
+        }
+
+        std::string line2;
+        std::string line3;
+        std::string line4;
+        int a;
+        int b;
+        for (int i=0; i<=vertices; i++) {
+            for (int j=0; j<=k; j++){
+                if (i==0) {
+                    line2 = "-" + std::to_string(j+1+vertices);
+                    outputFile << line2 << std::endl;
+                }
+                else if (j==0) {
+                    line2 = std::to_string(i*(k+1)+1+vertices);
+                    outputFile << line2 << std::endl;
+                }
+                else {
+                    a = i*(k+1) + (j+1) + vertices;
+                    b = (i-1)*(k+1) + (j+1) + vertices;
+                    line2 = std::to_string(a);
+                    line3 = std::to_string(b) + " " + std::to_string(b-1);
+                    line4 = std::to_string(b) + " " + std::to_string(i);
+                    outputFile << line2 << std::endl << line3 << std::endl << line4 << std::endl;
+                }
+            }
+        }
+        k++;
+        // Check if outputFile is satisfiable 
+        // if not satisfiable then break
+        outputFile.close();
+    }
+    
+
 
     return 0;
 }
