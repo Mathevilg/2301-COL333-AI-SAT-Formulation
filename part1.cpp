@@ -117,12 +117,12 @@ int main(int argc, char *argv[]) {
 
                 line3 = "-" + std::to_string(s_k_n) +  " " + std::to_string(n) + " 0";
 
-                if (find(True_literals.begin(), True_literals.end(), s_k_1_n_1) != True_literals.end()){
+                if (binary_search(True_literals.begin(), True_literals.end(), s_k_1_n_1)){
                     line2 = "-" + std::to_string(n) + " " + std::to_string(s_k_n) + " 0";
                     clauses.push_back(line2);
                     clauses.push_back(line3);
                 }
-                else if (find(False_literals.begin(), False_literals.end(), s_k_1_n_1) != False_literals.end()){
+                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_1_n_1)){
                     line4 = "-" + std::to_string(s_k_n) +  " 0";
                     False_literals.push_back(s_k_n);
                     clauses.push_back(line4);
@@ -145,13 +145,13 @@ int main(int argc, char *argv[]) {
                 bool s_k_n_flag2 = false;
                 line4 = "-" + std::to_string(s_k_n);
                 
-                if (find(True_literals.begin(), True_literals.end(), s_k_n_1) != True_literals.end()){
+                if (binary_search(True_literals.begin(), True_literals.end(), s_k_n_1)){
                     line1 = std::to_string(s_k_n) + " 0";
                     clauses.push_back(line1);
                     True_literals.push_back(s_k_n);
                     line4_flag = false;
                 }
-                else if (find(False_literals.begin(), False_literals.end(), s_k_n_1) != False_literals.end()){
+                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_n_1)){
                     line3 = "-" + std::to_string(s_k_n) + " " + std::to_string(n) + " 0";
                     clauses.push_back(line3);
                     s_k_n_flag1 = true;
@@ -164,12 +164,12 @@ int main(int argc, char *argv[]) {
                     clauses.push_back(line3);
                 }
 
-                if (find(True_literals.begin(), True_literals.end(), s_k_1_n_1) != True_literals.end()){
+                if (binary_search(True_literals.begin(), True_literals.end(), s_k_1_n_1)){
                     line2 = "-" + std::to_string(n) + " " + std::to_string(s_k_n) + " 0";
                     clauses.push_back(line2);
                     line4_flag = false;
                 }
-                else if (find(False_literals.begin(), False_literals.end(), s_k_1_n_1) != False_literals.end()){
+                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_1_n_1)){
                     s_k_n_flag2 = true;
                     continue;
                 }
@@ -223,12 +223,12 @@ int main(int argc, char *argv[]) {
 
                 line3 = "-" + std::to_string(s_k_n) +  " " + std::to_string(vertices + n) + " 0";
 
-                if (find(True_literals.begin(), True_literals.end(), s_k_1_n_1) != True_literals.end()){
+                if (binary_search(True_literals.begin(), True_literals.end(), s_k_1_n_1)){
                     line2 = "-" + std::to_string(vertices + n) + " " + std::to_string(s_k_n) + " 0";
                     clauses.push_back(line2);
                     clauses.push_back(line3);
                 }
-                else if (find(False_literals.begin(), False_literals.end(), s_k_1_n_1) != False_literals.end()){
+                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_1_n_1)){
                     line4 = "-" + std::to_string(s_k_n) +  " 0";
                     False_literals.push_back(s_k_n);
                     clauses.push_back(line4);
@@ -251,13 +251,13 @@ int main(int argc, char *argv[]) {
                 bool s_k_n_flag2 = false;
                 line4 = "-" + std::to_string(s_k_n);
                 
-                if (find(True_literals.begin(), True_literals.end(), s_k_n_1) != True_literals.end()){
+                if (binary_search(True_literals.begin(), True_literals.end(), s_k_n_1)){
                     line1 = std::to_string(s_k_n) + " 0";
                     clauses.push_back(line1);
                     True_literals.push_back(s_k_n);
                     line4_flag = false;
                 }
-                else if (find(False_literals.begin(), False_literals.end(), s_k_n_1) != False_literals.end()){
+                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_n_1)){
                     line3 = "-" + std::to_string(s_k_n) + " " + std::to_string(vertices + n) + " 0";
                     clauses.push_back(line3);
                     s_k_n_flag1 = true;
@@ -270,12 +270,12 @@ int main(int argc, char *argv[]) {
                     clauses.push_back(line3);
                 }
 
-                if (find(True_literals.begin(), True_literals.end(), s_k_1_n_1) != True_literals.end()){
+                if (binary_search(True_literals.begin(), True_literals.end(), s_k_1_n_1)){
                     line2 = "-" + std::to_string(vertices + n) + " " + std::to_string(s_k_n) + " 0";
                     clauses.push_back(line2);
                     line4_flag = false;
                 }
-                else if (find(False_literals.begin(), False_literals.end(), s_k_1_n_1) != False_literals.end()){
+                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_1_n_1)){
                     s_k_n_flag2 = true;
                     continue;
                 }
