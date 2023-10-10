@@ -26,6 +26,13 @@ int main(int argc, char *argv[]) {
     std::istringstream iss(first_line);
     iss >> vertices >> edges >> k1 >> k2;
 
+    // checking the trivial condition where if k1 + k2 > n then a possible mapping doesn't exist and hence putting an "empty clause" which means unsatisfiable
+    if (k1 + k2 > vertices){
+        std::cout<< "p cnf " + std::to_string(vertices*2 + (k1+2)*(vertices+1) + (k2+2)*(vertices+1)) + " 1\n";
+        std::cout<<"0\n";
+        return 0;
+    }
+
     // Construct an adjacency matrix by reading the graph
     std::vector<std::vector<bool> > adjacencyMatrix (vertices, std::vector<bool>(vertices, 0));
     std::string line;
@@ -38,14 +45,7 @@ int main(int argc, char *argv[]) {
     }
 
     int no_of_variables = vertices*2 + (k1+2)*(vertices+1) + (k2+2)*(vertices+1);
-    // int no_of_constraints = vertices + 2*((vertices*(vertices-1))/2 - edges) + ((k1+1)*vertices*4 + 2 + (k1+vertices+2)) + ((k2+1)*vertices*4 + 2 + (k2+vertices+2));
-
-    std::ofstream outputFile("test1.satinput");
     std::vector<std::string> clauses;
-    // outputFile << "p cnf " + std::to_string(no_of_variables) + " " + std::to_string(no_of_constraints) << std::endl;
-    // outputFile << std::to_string(no_of_variables) + " " + std::to_string(no_of_constraints) << std::endl;
-
-    // outputFile << "p cnf " + std::to_string(no_of_variables) + " 2227168" << std::endl;
     
     // adding the clauses (~Ai or ~Bi) which ensure that a person is in only 1 agency
     std::string clause_type1;
@@ -88,10 +88,7 @@ int main(int argc, char *argv[]) {
     clauses.push_back(clause_type3);
     False_literals.push_back(2*vertices + (k1+2)*(vertices+1) + (k2+1)*(vertices+1) + vertices + 1);
 
-    std::cout<<"starting wiht k1"<<std::endl;
-
     for (int k = 0; k <= k1+1; k++){
-        std::cout<<"k1: "<<k<<std::endl;
         for (int n = 0; n <= vertices; n++){
             if (k==0){
                 int literal = 2*vertices + n + 1;
@@ -193,15 +190,11 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    std::cout<<"finished with k1 "<<std::endl;
-
     for (int k = 0; k <= k2+1; k++){
-        std::cout<<"k2: "<<k<<std::endl;
         for (int n = 0; n <= vertices; n++){
             if (k==0){
                 int literal = 2*vertices + (k1+2)*(vertices+1) + n + 1;
                 clause_type3 =  std::to_string(literal) + " 0";
-                // std::cout<<clause_type3;
                 clauses.push_back(clause_type3);
                 True_literals.push_back(literal);
             }
@@ -299,26 +292,12 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    std::cout<<"checked all clauses...writing it "<<std::endl;
-
-    outputFile << "p cnf " + std::to_string(no_of_variables) + " " + std::to_string(clauses.size()) + "\n";
+    std::cout << "p cnf " + std::to_string(no_of_variables) + " " + std::to_string(clauses.size()) + "\n";
     for (int i = 0; i < clauses.size(); i++){
-        outputFile << clauses[i] << std::endl;
+        std::cout << clauses[i] << std::endl;
     }
-
-    // std::cout<<"true literals\n";
-    // for (int i = 0; i < True_literals.size(); i++){
-    //     std::cout<<True_literals[i]<<" ";
-    // }
-    // std::cout<<"\n";
-    // std::cout<<"false literals\n";
-    // for (int i = 0; i < False_literals.size(); i++){
-    //     std::cout<<False_literals[i]<<" ";
-    // }
     
-    outputFile.close();
-
-    // process_unit_literals("test1.satinput");
+    // outputFile.close();
 
     return 0;
 }
