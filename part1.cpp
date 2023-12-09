@@ -6,19 +6,7 @@
 #include <algorithm>
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <input_file>" << std::endl;
-        return 1;
-    }
-
     std::ifstream input_file(argv[1]);
-    if (!input_file) {
-        std::cerr << "Error: Could not open input file " << argv[1] << std::endl;
-        return 1;
-    }
-
-    // Process input file (test.graphs) and generate the required output
-
     // Fetching the information such as number of vertices, number of edges and k1, k2
     int vertices, edges, k1, k2;
     std::string first_line;
@@ -45,6 +33,7 @@ int main(int argc, char *argv[]) {
     }
 
     int no_of_variables = vertices*2 + (k1+2)*(vertices+1) + (k2+2)*(vertices+1);
+
     std::vector<std::string> clauses;
     
     // adding the clauses (~Ai or ~Bi) which ensure that a person is in only 1 agency
@@ -69,117 +58,149 @@ int main(int argc, char *argv[]) {
 
     // defining the clauses with respect to s_k,n where s_k,n says that atleast k variables are true out of n
     std::string line1,line2,line3,line4,clause_type3;
-    int s_k_n, s_k_n_1, s_k_1_n_1;
+    int a_k_n, a_k_n_1, a_k_1_n_1;
     std::vector<int> False_literals, True_literals;
 
     clause_type3 = std::to_string(2*vertices + k1*(vertices+1) + vertices + 1) + " 0";
     clauses.push_back(clause_type3);
-    True_literals.push_back(2*vertices + k1*(vertices+1) + vertices + 1);
+    // True_literals.push_back(2*vertices + k1*(vertices+1) + vertices + 1);
 
     clause_type3 = std::to_string(2*vertices + (k1+2)*(vertices+1) + k2*(vertices+1) + vertices + 1) + " 0";
     clauses.push_back(clause_type3);
-    True_literals.push_back(2*vertices + (k1+2)*(vertices+1) + k2*(vertices+1) + vertices + 1);
+    // True_literals.push_back(2*vertices + (k1+2)*(vertices+1) + k2*(vertices+1) + vertices + 1);
 
     clause_type3 = "-" + std::to_string(2*vertices + (k1+1)*(vertices+1) + vertices + 1) + " 0";
     clauses.push_back(clause_type3);
-    False_literals.push_back(2*vertices + (k1+1)*(vertices+1) + vertices + 1);
+    // False_literals.push_back(2*vertices + (k1+1)*(vertices+1) + vertices + 1);
 
     clause_type3 = "-" + std::to_string(2*vertices + (k1+2)*(vertices+1) + (k2+1)*(vertices+1) + vertices + 1) + " 0";
     clauses.push_back(clause_type3);
-    False_literals.push_back(2*vertices + (k1+2)*(vertices+1) + (k2+1)*(vertices+1) + vertices + 1);
+    // False_literals.push_back(2*vertices + (k1+2)*(vertices+1) + (k2+1)*(vertices+1) + vertices + 1);
 
     for (int k = 0; k <= k1+1; k++){
         for (int n = 0; n <= vertices; n++){
+
+            if (k == k1 && n == vertices){
+                True_literals.push_back(2*vertices + k1*(vertices+1) + vertices + 1);
+            }
+            else if (k == k1+1 && n == vertices){
+                False_literals.push_back(2*vertices + (k1+1)*(vertices+1) + vertices + 1);
+            }
+
             if (k==0){
                 int literal = 2*vertices + n + 1;
                 clause_type3 =  std::to_string(literal) + " 0";
                 clauses.push_back(clause_type3);
-                True_literals.push_back(literal);
+                // True_literals.push_back(literal);
             }
             else if (n == 0){
                 int literal =2*vertices + k*(vertices+1) + n + 1;
                 clause_type3 = "-" + std::to_string(2*vertices + k*(vertices+1) + n + 1) + " 0";
                 clauses.push_back(clause_type3);
-                False_literals.push_back(literal);
+                // False_literals.push_back(literal);
+            }
+            else if (k == 1){
+                a_k_n = 2*vertices + k*(vertices+1) + n + 1;
+                if (n == 1){
+                    line2 = "-" + std::to_string(n) + " " + std::to_string(a_k_n) + " 0";
+                    line3 =  std::to_string(n) + " -" + std::to_string(a_k_n) + " 0";
+                    clauses.push_back(line2);
+                    clauses.push_back(line3);
+                }
+                else {
+                    a_k_n_1 = 2*vertices + k*(vertices+1) + n-1 + 1;
+                    line1 = "-" + std::to_string(a_k_n_1) + " " + std::to_string(a_k_n) + " 0";
+                    line2 = "-" + std::to_string(n) + " " + std::to_string(a_k_n) + " 0";
+                    line3 = "-" + std::to_string(a_k_n) + " " + std::to_string(a_k_n_1) + " " + std::to_string(n) + " 0";
+                    clauses.push_back(line1);
+                    clauses.push_back(line2);
+                    clauses.push_back(line3);
+                }
+            }
+            else if (n == 1){
+                a_k_n = 2*vertices + k*(vertices+1) + n + 1;
+                // here a_k_n_1 and a_k_1_n_1 both will be false
+                line4 = "-" + std::to_string(a_k_n) + " 0";
+                False_literals.push_back(a_k_n);
             }
             else if (k > n){
                 int literal = 2*vertices + k*(vertices+1) + n + 1;
                 clause_type3 = "-" + std::to_string(2*vertices + k*(vertices+1) + n + 1) + " 0";
                 clauses.push_back(clause_type3);
-                False_literals.push_back(literal);
+                // False_literals.push_back(literal);
             }
             else if (k == n){
-                s_k_n = 2*vertices + k*(vertices+1) + n + 1;
-                s_k_1_n_1 = 2*vertices + (k-1)*(vertices+1) + n-1 + 1;
+                a_k_n = 2*vertices + k*(vertices+1) + n + 1;
+                a_k_1_n_1 = 2*vertices + (k-1)*(vertices+1) + n-1 + 1;
 
-                line3 = "-" + std::to_string(s_k_n) +  " " + std::to_string(n) + " 0";
+                line3 = "-" + std::to_string(a_k_n) +  " " + std::to_string(n) + " 0";
 
-                if (binary_search(True_literals.begin(), True_literals.end(), s_k_1_n_1)){
-                    line2 = "-" + std::to_string(n) + " " + std::to_string(s_k_n) + " 0";
+                if (binary_search(True_literals.begin(), True_literals.end(), a_k_1_n_1)){
+                    line2 = "-" + std::to_string(n) + " " + std::to_string(a_k_n) + " 0";
                     clauses.push_back(line2);
                     clauses.push_back(line3);
                 }
-                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_1_n_1)){
-                    line4 = "-" + std::to_string(s_k_n) +  " 0";
-                    False_literals.push_back(s_k_n);
+                else if (binary_search(False_literals.begin(), False_literals.end(), a_k_1_n_1)){
+                    line4 = "-" + std::to_string(a_k_n) +  " 0";
+                    False_literals.push_back(a_k_n);
                     clauses.push_back(line4);
                 }
                 else{
-                    line2 = "-" + std::to_string(n) + " " + std::to_string(s_k_n) + " -" + std::to_string(s_k_1_n_1) + " 0";
-                    line4 = "-" + std::to_string(s_k_n) + " " + std::to_string(s_k_1_n_1) + " 0";
+                    line2 = "-" + std::to_string(n) + " " + std::to_string(a_k_n) + " -" + std::to_string(a_k_1_n_1) + " 0";
+                    line4 = "-" + std::to_string(a_k_n) + " " + std::to_string(a_k_1_n_1) + " 0";
                     clauses.push_back(line2);
                     clauses.push_back(line4);
                     clauses.push_back(line3);
                 }   
             }
             else{
-                s_k_n = 2*vertices + k*(vertices+1) + n + 1;
-                s_k_n_1 = 2*vertices + k*(vertices+1) + n-1 + 1;
-                s_k_1_n_1 = 2*vertices + (k-1)*(vertices+1) + n-1 + 1;
+                a_k_n = 2*vertices + k*(vertices+1) + n + 1;
+                a_k_n_1 = 2*vertices + k*(vertices+1) + n-1 + 1;
+                a_k_1_n_1 = 2*vertices + (k-1)*(vertices+1) + n-1 + 1;
                 
                 bool line4_flag = true;
-                bool s_k_n_flag1 = false;
-                bool s_k_n_flag2 = false;
-                line4 = "-" + std::to_string(s_k_n);
+                bool a_k_n_flag1 = false;
+                bool a_k_n_flag2 = false;
+                line4 = "-" + std::to_string(a_k_n);
                 
-                if (binary_search(True_literals.begin(), True_literals.end(), s_k_n_1)){
-                    line1 = std::to_string(s_k_n) + " 0";
+                if (binary_search(True_literals.begin(), True_literals.end(), a_k_n_1)){
+                    line1 = std::to_string(a_k_n) + " 0";
                     clauses.push_back(line1);
-                    True_literals.push_back(s_k_n);
+                    True_literals.push_back(a_k_n);
                     line4_flag = false;
                 }
-                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_n_1)){
-                    line3 = "-" + std::to_string(s_k_n) + " " + std::to_string(n) + " 0";
+                else if (binary_search(False_literals.begin(), False_literals.end(), a_k_n_1)){
+                    line3 = "-" + std::to_string(a_k_n) + " " + std::to_string(n) + " 0";
                     clauses.push_back(line3);
-                    s_k_n_flag1 = true;
+                    a_k_n_flag1 = true;
                 }
                 else{
-                    line1 = "-" + std::to_string(s_k_n_1) + " " + std::to_string(s_k_n) + " 0";
-                    line3 = "-" + std::to_string(s_k_n) + " " + std::to_string(s_k_n_1) + " " + std::to_string(n) + " 0";
-                    line4 +=  " " + std::to_string(s_k_n_1);
+                    line1 = "-" + std::to_string(a_k_n_1) + " " + std::to_string(a_k_n) + " 0";
+                    line3 = "-" + std::to_string(a_k_n) + " " + std::to_string(a_k_n_1) + " " + std::to_string(n) + " 0";
+                    line4 +=  " " + std::to_string(a_k_n_1);
                     clauses.push_back(line1);
                     clauses.push_back(line3);
                 }
 
-                if (binary_search(True_literals.begin(), True_literals.end(), s_k_1_n_1)){
-                    line2 = "-" + std::to_string(n) + " " + std::to_string(s_k_n) + " 0";
+                if (binary_search(True_literals.begin(), True_literals.end(), a_k_1_n_1)){
+                    line2 = "-" + std::to_string(n) + " " + std::to_string(a_k_n) + " 0";
                     clauses.push_back(line2);
                     line4_flag = false;
                 }
-                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_1_n_1)){
-                    s_k_n_flag2 = true;
+                else if (binary_search(False_literals.begin(), False_literals.end(), a_k_1_n_1)){
+                    a_k_n_flag2 = true;
                     continue;
                 }
                 else{
-                    line4 +=  " " + std::to_string(s_k_1_n_1);
-                    line2 = "-" + std::to_string(n) + " -" + std::to_string(s_k_1_n_1) + " " + std::to_string(s_k_n) + " 0";
+                    line4 +=  " " + std::to_string(a_k_1_n_1);
+                    line2 = "-" + std::to_string(n) + " -" + std::to_string(a_k_1_n_1) + " " + std::to_string(a_k_n) + " 0";
                     clauses.push_back(line2);
                 }
                 if (line4_flag){
-                    if (s_k_n_flag1 && s_k_n_flag2){
+                    if (a_k_n_flag1 && a_k_n_flag2){
                         line4 += " 0";
                         clauses.push_back(line4);
-                        False_literals.push_back(s_k_n);
+                        False_literals.push_back(a_k_n);
                     }
                     else{
                         line4 += " 0";
@@ -190,98 +211,131 @@ int main(int argc, char *argv[]) {
         }
     }
 
+
     for (int k = 0; k <= k2+1; k++){
         for (int n = 0; n <= vertices; n++){
+
+            if (k == k2 && n == vertices){
+                True_literals.push_back(2*vertices + (k1+2)*(vertices+1) + k2*(vertices+1) + vertices + 1);
+            }
+            else if (k == k2+1 && n == vertices){
+                False_literals.push_back(2*vertices + (k1+2)*(vertices+1) + (k2+1)*(vertices+1) + vertices + 1);
+            }
+
             if (k==0){
                 int literal = 2*vertices + (k1+2)*(vertices+1) + n + 1;
                 clause_type3 =  std::to_string(literal) + " 0";
                 clauses.push_back(clause_type3);
-                True_literals.push_back(literal);
+                // True_literals.push_back(literal);
             }
             else if (n == 0){
                 int literal = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1;
                 clause_type3 = "-" + std::to_string(literal) + " 0";
                 clauses.push_back(clause_type3);
-                False_literals.push_back(literal);
+                // False_literals.push_back(literal);
+            }
+            else if (k == 1){
+                a_k_n = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1;
+                if (n == 1){
+                    line2 = "-" + std::to_string(n + vertices) + " " + std::to_string(a_k_n) + " 0";
+                    line3 =  std::to_string(n + vertices) + " -" + std::to_string(a_k_n) + " 0";
+                    clauses.push_back(line2);
+                    clauses.push_back(line3);
+                }
+                else {
+                    a_k_n_1 = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n-1 + 1;
+                    line1 = "-" + std::to_string(a_k_n_1) + " " + std::to_string(a_k_n) + " 0";
+                    line2 = "-" + std::to_string(n + vertices) + " " + std::to_string(a_k_n) + " 0";
+                    line3 = "-" + std::to_string(a_k_n) + " " + std::to_string(a_k_n_1) + " " + std::to_string(n + vertices) + " 0";
+                    clauses.push_back(line1);
+                    clauses.push_back(line2);
+                    clauses.push_back(line3);
+                }
+            }
+            else if (n == 1){
+                a_k_n = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1;
+                // here a_k_n_1 and a_k_1_n_1 both will be false
+                line4 = "-" + std::to_string(a_k_n) + " 0";
+                False_literals.push_back(a_k_n);
             }
             else if (k > n){
                 int literal = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1;
                 clause_type3 = "-" + std::to_string(literal) + " 0";
                 clauses.push_back(clause_type3);
-                False_literals.push_back(literal);
+                // False_literals.push_back(literal);
             }
             else if (k == n){
-                s_k_n = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1;
-                s_k_1_n_1 = 2*vertices + (k1+2)*(vertices+1) + (k-1)*(vertices+1) + n-1 + 1;
+                a_k_n = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1;
+                a_k_1_n_1 = 2*vertices + (k1+2)*(vertices+1) + (k-1)*(vertices+1) + n-1 + 1;
 
-                line3 = "-" + std::to_string(s_k_n) +  " " + std::to_string(vertices + n) + " 0";
+                line3 = "-" + std::to_string(a_k_n) +  " " + std::to_string(vertices + n) + " 0";
 
-                if (binary_search(True_literals.begin(), True_literals.end(), s_k_1_n_1)){
-                    line2 = "-" + std::to_string(vertices + n) + " " + std::to_string(s_k_n) + " 0";
+                if (binary_search(True_literals.begin(), True_literals.end(), a_k_1_n_1)){
+                    line2 = "-" + std::to_string(vertices + n) + " " + std::to_string(a_k_n) + " 0";
                     clauses.push_back(line2);
                     clauses.push_back(line3);
                 }
-                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_1_n_1)){
-                    line4 = "-" + std::to_string(s_k_n) +  " 0";
-                    False_literals.push_back(s_k_n);
+                else if (binary_search(False_literals.begin(), False_literals.end(), a_k_1_n_1)){
+                    line4 = "-" + std::to_string(a_k_n) +  " 0";
+                    False_literals.push_back(a_k_n);
                     clauses.push_back(line4);
                 }
                 else{
-                    line2 = "-" + std::to_string(vertices + n) + " " + std::to_string(s_k_n) + " -" + std::to_string(s_k_1_n_1) + " 0";
-                    line4 = "-" + std::to_string(s_k_n) + " " + std::to_string(s_k_1_n_1) + " 0";
+                    line2 = "-" + std::to_string(vertices + n) + " " + std::to_string(a_k_n) + " -" + std::to_string(a_k_1_n_1) + " 0";
+                    line4 = "-" + std::to_string(a_k_n) + " " + std::to_string(a_k_1_n_1) + " 0";
                     clauses.push_back(line2);
                     clauses.push_back(line4);
                     clauses.push_back(line3);
                 }   
             }
             else{
-                s_k_n = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1;
-                s_k_n_1 = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n-1 + 1;
-                s_k_1_n_1 = 2*vertices + (k1+2)*(vertices+1) + (k-1)*(vertices+1) + n-1 + 1;
+                a_k_n = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n + 1;
+                a_k_n_1 = 2*vertices + (k1+2)*(vertices+1) + k*(vertices+1) + n-1 + 1;
+                a_k_1_n_1 = 2*vertices + (k1+2)*(vertices+1) + (k-1)*(vertices+1) + n-1 + 1;
 
                 bool line4_flag = true;
-                bool s_k_n_flag1 = false;
-                bool s_k_n_flag2 = false;
-                line4 = "-" + std::to_string(s_k_n);
+                bool a_k_n_flag1 = false;
+                bool a_k_n_flag2 = false;
+                line4 = "-" + std::to_string(a_k_n);
                 
-                if (binary_search(True_literals.begin(), True_literals.end(), s_k_n_1)){
-                    line1 = std::to_string(s_k_n) + " 0";
+                if (binary_search(True_literals.begin(), True_literals.end(), a_k_n_1)){
+                    line1 = std::to_string(a_k_n) + " 0";
                     clauses.push_back(line1);
-                    True_literals.push_back(s_k_n);
+                    True_literals.push_back(a_k_n);
                     line4_flag = false;
                 }
-                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_n_1)){
-                    line3 = "-" + std::to_string(s_k_n) + " " + std::to_string(vertices + n) + " 0";
+                else if (binary_search(False_literals.begin(), False_literals.end(), a_k_n_1)){
+                    line3 = "-" + std::to_string(a_k_n) + " " + std::to_string(vertices + n) + " 0";
                     clauses.push_back(line3);
-                    s_k_n_flag1 = true;
+                    a_k_n_flag1 = true;
                 }
                 else{
-                    line1 = "-" + std::to_string(s_k_n_1) + " " + std::to_string(s_k_n) + " 0";
-                    line3 = "-" + std::to_string(s_k_n) + " " + std::to_string(s_k_n_1) + " " + std::to_string(vertices + n) + " 0";
-                    line4 +=  " " + std::to_string(s_k_n_1);
+                    line1 = "-" + std::to_string(a_k_n_1) + " " + std::to_string(a_k_n) + " 0";
+                    line3 = "-" + std::to_string(a_k_n) + " " + std::to_string(a_k_n_1) + " " + std::to_string(vertices + n) + " 0";
+                    line4 +=  " " + std::to_string(a_k_n_1);
                     clauses.push_back(line1);
                     clauses.push_back(line3);
                 }
 
-                if (binary_search(True_literals.begin(), True_literals.end(), s_k_1_n_1)){
-                    line2 = "-" + std::to_string(vertices + n) + " " + std::to_string(s_k_n) + " 0";
+                if (binary_search(True_literals.begin(), True_literals.end(), a_k_1_n_1)){
+                    line2 = "-" + std::to_string(vertices + n) + " " + std::to_string(a_k_n) + " 0";
                     clauses.push_back(line2);
                     line4_flag = false;
                 }
-                else if (binary_search(False_literals.begin(), False_literals.end(), s_k_1_n_1)){
-                    s_k_n_flag2 = true;
+                else if (binary_search(False_literals.begin(), False_literals.end(), a_k_1_n_1)){
+                    a_k_n_flag2 = true;
                     continue;
                 }
                 else{
-                    line4 +=  " " + std::to_string(s_k_1_n_1);
-                    line2 = "-" + std::to_string(vertices + n) + " -" + std::to_string(s_k_1_n_1) + " " + std::to_string(s_k_n) + " 0";
+                    line4 +=  " " + std::to_string(a_k_1_n_1);
+                    line2 = "-" + std::to_string(vertices + n) + " -" + std::to_string(a_k_1_n_1) + " " + std::to_string(a_k_n) + " 0";
                     clauses.push_back(line2);
                 }
                 if (line4_flag){
-                    if (s_k_n_flag1 && s_k_n_flag2){
+                    if (a_k_n_flag1 && a_k_n_flag2){
                         line4 += " 0";
                         clauses.push_back(line4);
-                        False_literals.push_back(s_k_n);
+                        False_literals.push_back(a_k_n);
                     }
                     else{
                         line4 += " 0";
@@ -296,7 +350,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < clauses.size(); i++){
         std::cout << clauses[i] << std::endl;
     }
-    
+
     // outputFile.close();
 
     return 0;

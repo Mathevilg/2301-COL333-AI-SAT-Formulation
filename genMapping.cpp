@@ -16,12 +16,9 @@ int main(int argc, char *argv[]) {
     }
 
     int vertices, edges;
-    std::string first_line;
-    std::getline(input_file1, first_line);
-    std::istringstream iss(first_line);
-    iss >> vertices >> edges;
-    std::cout << "vertices: " << vertices << std::endl;
-    std::cout << "edges: " << edges << std::endl;
+    input_file1 >> vertices >> edges;
+    // std::cout << "vertices: " << vertices << std::endl;
+    // std::cout << "edges: " << edges << std::endl;
 
     std::ifstream input_file2(argv[2]);
     if (!input_file2) {
@@ -31,28 +28,57 @@ int main(int argc, char *argv[]) {
 
     // Process input file 1 and 2 (satoutput and graph) and generate the required output (stdout) in mapping file
     std::string line;
-    std::getline(input_file2, line);
-    std::getline(input_file2, line);
-    std::istringstream iss1(line);
-    std::string s;
-
-    std::cout << "#1\n";
-    for (int i=0; i<vertices ; i++) {
-        iss1 >> s;
-        if (s[0]!='-') {
-            std::cout << s << " ";
+    input_file2 >> line;
+    
+    if (line=="UNSAT") std::cout << 0;
+    else {
+        int c1 = 0;
+        int c2 = 0;
+        std::string s;
+        // std::cout << "#1\n";
+        for (int i=0; i<vertices ; i++) {
+            input_file2 >> s;
+            if (s[0]!='-') {
+                c1++;
+                // std::cout << s << " ";
+            }
         }
-    }
-    std::cout << "\n";
-
-    std::cout << "#2\n";
-    for (int i=0; i<vertices ; i++) {
-        iss1 >> s;
-        if (s[0]!='-') {
-            std::cout << std::to_string(std::stoi(s)-vertices) << " ";
+        // std::cout << "\n";
+        // std::cout << "#2\n";
+        for (int i=0; i<vertices ; i++) {
+            input_file2 >> s;
+            if (s[0]!='-') {
+                c2++;
+                // std::cout << std::to_string(std::stoi(s)-vertices) << " ";
+            }
         }
+
+        std::ifstream input_file3(argv[2]);
+        input_file3 >> s;
+        std::cout << "#1\n";
+        int c3 = 0;
+        int c4 = 0;
+        for (int i=0; i<vertices ; i++) {
+            input_file3 >> s;
+            if (s[0]!='-') {
+                c3++;
+                if (c3==c1) std::cout << s;
+                else std::cout << s << " ";
+            }
+        }
+        std::cout << "\n";
+        std::cout << "#2\n";
+        for (int i=0; i<vertices ; i++) {
+            input_file3 >> s;
+            if (s[0]!='-') {
+                c4++;
+                if (c4==c2) std::cout << std::to_string(std::stoi(s)-vertices);
+                else std::cout << std::to_string(std::stoi(s)-vertices) << " ";
+            }
+        }
+
+
     }
-    std::cout << "\n";
     
     return 0;
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 sat_output="${1}.satoutput"
-graph_file="${1}.graphs"
+graph_file="${1}.graph"
 mapping_file="${1}.mapping"
 
-./genMapping "$sat_output" "$graph_file" > "$mapping_file"
+./genMapping "$graph_file" "$sat_output" > "$mapping_file"
