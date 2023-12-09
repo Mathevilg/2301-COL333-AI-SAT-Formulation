@@ -1,3 +1,0 @@
-s_k,n 
-1. when k > n then s_k,n is already false
-2. when k=n then s_k,n-1 is called where it has to be false then simplify it accordingly
